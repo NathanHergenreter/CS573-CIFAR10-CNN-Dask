@@ -51,7 +51,7 @@ class cifar10_cnn:
             seed=0,
             color_mode="grayscale",
             batch_size=batch_size,
-            image_size=(self.imgDimensions[0], self.imgDimensions[0])
+            image_size=(32, 32)
         )
         test_ds = image_dataset_from_directory(
             self.datasetDirectory,
@@ -60,8 +60,8 @@ class cifar10_cnn:
             subset="validation",
             seed=0,
             color_mode="grayscale",
-            batch_size=32,
-            image_size=(self.imgDimensions[0], self.imgDimensions[0])
+            batch_size=batch_size,
+            image_size=(32, 32)
         )
         
         # Convert to numpy
@@ -92,10 +92,10 @@ class cifar10_cnn:
 
         return train_norm, test_norm
     
-    def define_model(self, lr, momentum):
+    def define_model(self, learning_rate=0.001, momentum=0.9):
         model = Sequential()
 
-        model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same', input_shape=(self.imgDimensions[0], self.imgDimensions[0], self.imgDimensions[1])))
+        model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same', input_shape=(32, 32, self.imgDimensions[1])))
         model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
         model.add(MaxPooling2D((2, 2)))
         model.add(Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
@@ -108,7 +108,7 @@ class cifar10_cnn:
         model.add(Dense(128, activation='relu', kernel_initializer='he_uniform'))
         model.add(Dense(10, activation='softmax'))
 
-        opt = SGD(learning_rate=lr, momentum=momentum)
+        opt = SGD(learning_rate=learning_rate, momentum=momentum)
         model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
         
         return model
@@ -123,7 +123,7 @@ class cifar10_cnn:
         if exists(self.modelFilename):
             self.model = load_model(self.modelFilename)
     
-    def run_test_harness(self, load_model=True, epochs=100, batch_size=64, lr=0.001, momentum=0.9):
+    def run_test_harness(self, load_model=True, epochs=100, batch_size=64, learning_rate=0.001, momentum=0.9):
         # Load data and prep data
         if self.datasetDirectory == None:
             trainX, trainY, testX, testY = self.load_dataset()
@@ -138,7 +138,7 @@ class cifar10_cnn:
             self.load_model_from_file()
         # If no model, train on train data then save
         if self.model == None:
-            self.model = self.define_model(lr, momentum)
+            self.model = self.define_model(learning_rate, momentum)
             self.fit_model(trainX, trainY, epochs, batch_size)
             self.save_model_to_file()
        

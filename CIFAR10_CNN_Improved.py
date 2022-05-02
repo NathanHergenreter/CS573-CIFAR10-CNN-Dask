@@ -13,11 +13,10 @@ from CIFAR10_CNN import cifar10_cnn
 
 class cifar10_cnn_improved(cifar10_cnn):
     
-    
-    def define_model(self, lr, momentum):
+    def define_model(self, learning_rate=0.001, momentum=0.9):
         model = Sequential()
 
-        model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same', input_shape=(self.imgDimensions[0], self.imgDimensions[0], self.imgDimensions[1])))
+        model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same', input_shape=(32, 32, self.imgDimensions[1])))
         model.add(BatchNormalization())
         model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
         model.add(BatchNormalization())
@@ -41,7 +40,7 @@ class cifar10_cnn_improved(cifar10_cnn):
         model.add(Dropout(0.5))
         model.add(Dense(10, activation='softmax'))
 
-        opt = SGD(learning_rate=lr, momentum=momentum)
+        opt = SGD(learning_rate=learning_rate, momentum=momentum)
         model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
         
         return model
